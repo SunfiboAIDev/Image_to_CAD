@@ -1,3 +1,6 @@
+import sys
+sys.path.append('/content/drive/MyDrive/packages')
+
 import os
 import shutil
 from typing import *
@@ -11,17 +14,27 @@ from trellis.representations import Gaussian, MeshExtractResult
 from trellis.utils import render_utils, postprocessing_utils
 from fastapi import FastAPI, Query
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 from PIL import Image
 import base64
 import io
+import json
 
 class ImageTo3d:
     def __init__(self):
         self.app = FastAPI()
+        self.app.add_middleware(
+            CORSMiddleware,
+            allow_origins=['*'],
+            allow_credentials=True,
+            allow_methods=['*'],
+            allow_headers=['*'],
+        )
         self.pipeline = TrellisImageTo3DPipeline.from_pretrained("JeffreyXiang/TRELLIS-image-large")
         self.pipeline.cuda()
         self.MAX_SEED = np.iinfo(np.int32).max
         self.TMP_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'tmp')
+        self.state = None
         os.makedirs(self.TMP_DIR, exist_ok=True)
 
         # Add FastAPI routes
@@ -46,22 +59,24 @@ class ImageTo3d:
             state, video_path = self.image_to_3d(
                 image, multiimages, is_multiimage, seed, ss_guidance_strength, ss_sampling_steps, slat_guidance_strength, slat_sampling_steps, multiimage_algo
             )
-            return JSONResponse(content={"state": state, "video_path": video_path})
+            self.state = state
+            return JSONResponse(content={"video_path": video_path})
         
         @self.app.post("/extract_glb")
         async def extract_glb(
-            state: dict = Query(...),
             mesh_simplify: float = Query(0.1),
             texture_size: int = Query(1024),
         ):
-            glb_path, glb_path = self.extract_glb(state, mesh_simplify, texture_size)
+            glb_path = ''
+            if self.state is not None:
+              glb_path = self.extract_glb(self.state, mesh_simplify, texture_size)
             return JSONResponse(content={"glb_path": glb_path})
         
         @self.app.post("/extract_gaussian")
-        async def extract_gaussian(
-            state: dict = Query(...),
-        ):
-            gaussian_path, gaussian_path = self.extract_gaussian(state)
+        async def extract_gaussian():
+            gaussian_path = ''
+            if self.state is not None:
+              gaussian_path = self.extract_gaussian(self.state)
             return JSONResponse(content={"gaussian_path": gaussian_path})
 
     def preprocess_image(self, image: Image.Image) -> Image.Image:
@@ -217,7 +232,7 @@ class ImageTo3d:
         state: dict,
         mesh_simplify: float,
         texture_size: int
-    ) -> Tuple[str, str]:
+    ) -> str:
         """
         Extract a GLB file from the 3D model.
 
@@ -235,10 +250,10 @@ class ImageTo3d:
         glb_path = os.path.join(user_dir, 'sample.glb')
         glb.export(glb_path)
         torch.cuda.empty_cache()
-        return glb_path, glb_path
+        return glb_path
     
 
-    def extract_gaussian(self, state: dict) -> Tuple[str, str]:
+    def extract_gaussian(self, state: dict) -> str:
         """
         Extract a Gaussian file from the 3D model.
 
@@ -253,7 +268,7 @@ class ImageTo3d:
         gaussian_path = os.path.join(user_dir, 'sample.ply')
         gs.save_ply(gaussian_path)
         torch.cuda.empty_cache()
-        return gaussian_path, gaussian_path
+        return gaussian_path
 
 
     def prepare_multi_example(self) -> List[Image.Image]:
