@@ -1,7 +1,12 @@
+import os
+import sys
+os.environ['ATTN_BACKEND'] = 'xformers'
+sys.path.append('/content/drive/MyDrive/packages')
+
+
 import gradio as gr
 from gradio_litmodel3d import LitModel3D
 
-import os
 import shutil
 from typing import *
 import torch
@@ -222,12 +227,13 @@ def extract_gaussian(state: dict, req: gr.Request) -> Tuple[str, str]:
 
 
 def prepare_multi_example() -> List[Image.Image]:
-    multi_case = list(set([i.split('_')[0] for i in os.listdir("assets/example_multi_image")]))
+    folder_path = "/content/drive/MyDrive/Img_to_CAD/assets/example_multi_image"
+    multi_case = list(set([i for i in os.listdir(folder_path)]))
     images = []
     for case in multi_case:
         _images = []
         for i in range(1, 4):
-            img = Image.open(f'assets/example_multi_image/{case}_{i}.png')
+            img = Image.open(f'/content/drive/MyDrive/Img_to_CAD/assets/example_multi_image/{case}')
             W, H = img.size
             img = img.resize((int(W / H * 512), 512))
             _images.append(np.array(img))
@@ -309,10 +315,11 @@ with gr.Blocks(delete_cache=(600, 600)) as demo:
 
     # Example images at the bottom of the page
     with gr.Row() as single_image_example:
+        folder_path = os.path.join("/content/drive/MyDrive/Img_to_CAD", "./assets/example_image")
         examples = gr.Examples(
             examples=[
-                f'assets/example_image/{image}'
-                for image in os.listdir("assets/example_image")
+                os.path.join("/content/drive/MyDrive/Img_to_CAD", f"./assets/example_image/{image}")
+                for image in os.listdir(folder_path)
             ],
             inputs=[image_prompt],
             fn=preprocess_image,
@@ -400,4 +407,4 @@ with gr.Blocks(delete_cache=(600, 600)) as demo:
 if __name__ == "__main__":
     pipeline = TrellisImageTo3DPipeline.from_pretrained("JeffreyXiang/TRELLIS-image-large")
     pipeline.cuda()
-    demo.launch()
+    demo.launch(share=True)
