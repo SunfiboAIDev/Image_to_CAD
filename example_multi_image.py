@@ -7,11 +7,11 @@ os.environ['SPCONV_ALGO'] = 'native'        # Can be 'native' or 'auto', default
 import numpy as np
 import imageio
 from PIL import Image
-from trellis.pipelines import TrellisImageTo3DPipeline
+from trellis.pipelines import ImageTo3DPipeline
 from trellis.utils import render_utils
 
 # Load a pipeline from a model folder or a Hugging Face model hub.
-pipeline = TrellisImageTo3DPipeline.from_pretrained("JeffreyXiang/TRELLIS-image-large")
+pipeline = ImageTo3DPipeline.from_pretrained("Sunfiboaidev/ImageTo3D")
 pipeline.cuda()
 
 # Load an image

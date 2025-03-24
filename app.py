@@ -1,12 +1,7 @@
-import os
-import sys
-os.environ['ATTN_BACKEND'] = 'xformers'
-sys.path.append('/content/drive/MyDrive/packages')
-
-
 import gradio as gr
 from gradio_litmodel3d import LitModel3D
 
+import os
 import shutil
 from typing import *
 import torch
@@ -14,7 +9,7 @@ import numpy as np
 import imageio
 from easydict import EasyDict as edict
 from PIL import Image
-from trellis.pipelines import TrellisImageTo3DPipeline
+from trellis.pipelines import ImageTo3DPipeline
 from trellis.representations import Gaussian, MeshExtractResult
 from trellis.utils import render_utils, postprocessing_utils
 
@@ -227,13 +222,12 @@ def extract_gaussian(state: dict, req: gr.Request) -> Tuple[str, str]:
 
 
 def prepare_multi_example() -> List[Image.Image]:
-    folder_path = "/content/drive/MyDrive/Img_to_CAD/assets/example_multi_image"
-    multi_case = list(set([i for i in os.listdir(folder_path)]))
+    multi_case = list(set([i.split('_')[0] for i in os.listdir("assets/example_multi_image")]))
     images = []
     for case in multi_case:
         _images = []
         for i in range(1, 4):
-            img = Image.open(f'/content/drive/MyDrive/Img_to_CAD/assets/example_multi_image/{case}')
+            img = Image.open(f'assets/example_multi_image/{case}_{i}.png')
             W, H = img.size
             img = img.resize((int(W / H * 512), 512))
             _images.append(np.array(img))
@@ -258,7 +252,7 @@ def split_image(image: Image.Image) -> List[Image.Image]:
 
 with gr.Blocks(delete_cache=(600, 600)) as demo:
     gr.Markdown("""
-    ## Image to 3D Asset with [TRELLIS](https://trellis3d.github.io/)
+    ## Image to 3D Asset with [SUN FIBO TECHNOLOGY PVT LTD](https://trellis3d.github.io/)
     * Upload an image and click "Generate" to create a 3D asset. If the image has alpha channel, it be used as the mask. Otherwise, we use `rembg` to remove the background.
     * If you find the generated 3D asset satisfactory, click "Extract GLB" to extract the GLB file and download it.
     """)
@@ -315,11 +309,10 @@ with gr.Blocks(delete_cache=(600, 600)) as demo:
 
     # Example images at the bottom of the page
     with gr.Row() as single_image_example:
-        folder_path = os.path.join("/content/drive/MyDrive/Img_to_CAD", "./assets/example_image")
         examples = gr.Examples(
             examples=[
-                os.path.join("/content/drive/MyDrive/Img_to_CAD", f"./assets/example_image/{image}")
-                for image in os.listdir(folder_path)
+                f'assets/example_image/{image}'
+                for image in os.listdir("assets/example_image")
             ],
             inputs=[image_prompt],
             fn=preprocess_image,
@@ -405,6 +398,6 @@ with gr.Blocks(delete_cache=(600, 600)) as demo:
 
 # Launch the Gradio app
 if __name__ == "__main__":
-    pipeline = TrellisImageTo3DPipeline.from_pretrained("JeffreyXiang/TRELLIS-image-large")
+    pipeline = ImageTo3DPipeline.from_pretrained("Sunfiboaidev/ImageTo3D")
     pipeline.cuda()
-    demo.launch(share=True)
+    demo.launch()

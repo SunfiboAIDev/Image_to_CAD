@@ -90,19 +90,19 @@ We provide the following pretrained models:
 
 | Model | Description | #Params | Download |
 | --- | --- | --- | --- |
-| TRELLIS-image-large | Large image-to-3D model | 1.2B | [Download](https://huggingface.co/JeffreyXiang/TRELLIS-image-large) |
+| TRELLIS-image-large | Large image-to-3D model | 1.2B | [Download](https://huggingface.co/Sunfiboaidev/ImageTo3D) |
 | TRELLIS-text-base | Base text-to-3D model | 342M | Coming Soon |
 | TRELLIS-text-large | Large text-to-3D model | 1.1B | Coming Soon |
 | TRELLIS-text-xlarge | Extra-large text-to-3D model | 2.0B | Coming Soon |
 
 The models are hosted on Hugging Face. You can directly load the models with their repository names in the code:
 ```python
-TrellisImageTo3DPipeline.from_pretrained("JeffreyXiang/TRELLIS-image-large")
+ImageTo3DPipeline.from_pretrained("Sunfiboaidev/ImageTo3D")
 ```
 
 If you prefer loading the model from local, you can download the model files from the links above and load the model with the folder path (folder structure should be maintained):
 ```python
-TrellisImageTo3DPipeline.from_pretrained("/path/to/TRELLIS-image-large")
+ImageTo3DPipeline.from_pretrained("/path/to/TRELLIS-image-large")
 ```
 
 <!-- Usage -->
@@ -121,11 +121,11 @@ os.environ['SPCONV_ALGO'] = 'native'        # Can be 'native' or 'auto', default
 
 import imageio
 from PIL import Image
-from trellis.pipelines import TrellisImageTo3DPipeline
+from trellis.pipelines import ImageTo3DPipeline
 from trellis.utils import render_utils, postprocessing_utils
 
 # Load a pipeline from a model folder or a Hugging Face model hub.
-pipeline = TrellisImageTo3DPipeline.from_pretrained("JeffreyXiang/TRELLIS-image-large")
+pipeline = ImageTo3DPipeline.from_pretrained("Sunfiboaidev/ImageTo3D")
 pipeline.cuda()
 
 # Load an image

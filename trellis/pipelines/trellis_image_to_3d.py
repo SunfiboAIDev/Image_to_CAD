@@ -15,7 +15,7 @@ from ..modules import sparse as sp
 from ..representations import Gaussian, Strivec, MeshExtractResult
 
 
-class TrellisImageTo3DPipeline(Pipeline):
+class ImageTo3DPipeline(Pipeline):
     """
     Pipeline for inferring Trellis image-to-3D models.
 
@@ -46,15 +46,15 @@ class TrellisImageTo3DPipeline(Pipeline):
         self._init_image_cond_model(image_cond_model)
 
     @staticmethod
-    def from_pretrained(path: str) -> "TrellisImageTo3DPipeline":
+    def from_pretrained(path: str) -> "ImageTo3DPipeline":
         """
         Load a pretrained model.
 
         Args:
             path (str): The path to the model. Can be either local path or a Hugging Face repository.
         """
-        pipeline = super(TrellisImageTo3DPipeline, TrellisImageTo3DPipeline).from_pretrained(path)
-        new_pipeline = TrellisImageTo3DPipeline()
+        pipeline = super(ImageTo3DPipeline, ImageTo3DPipeline).from_pretrained(path)
+        new_pipeline = ImageTo3DPipeline()
         new_pipeline.__dict__ = pipeline.__dict__
         args = pipeline._pretrained_args
 
