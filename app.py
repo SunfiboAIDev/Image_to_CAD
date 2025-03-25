@@ -1,3 +1,8 @@
+import os
+import sys
+os.environ['ATTN_BACKEND'] = 'xformers'
+sys.path.append('/content/drive/MyDrive/packages')
+
 import gradio as gr
 from gradio_litmodel3d import LitModel3D
 
