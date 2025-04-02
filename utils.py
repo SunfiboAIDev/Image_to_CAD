@@ -1,5 +1,5 @@
 import sys
-sys.path.append('/content/drive/MyDrive/packages')
+sys.path.append('/content/drive/MyDrive/Image-to-CAD/packages')
 
 import os
 import shutil
@@ -9,7 +9,7 @@ import numpy as np
 import imageio
 from easydict import EasyDict as edict
 from PIL import Image
-from trellis.pipelines import TrellisImageTo3DPipeline
+from trellis.pipelines import ImageTo3DPipeline
 from trellis.representations import Gaussian, MeshExtractResult
 from trellis.utils import render_utils, postprocessing_utils
 from fastapi import FastAPI, Query
@@ -30,7 +30,7 @@ class ImageTo3d:
             allow_methods=['*'],
             allow_headers=['*'],
         )
-        self.pipeline = TrellisImageTo3DPipeline.from_pretrained("JeffreyXiang/TRELLIS-image-large")
+        self.pipeline = ImageTo3DPipeline.from_pretrained("JeffreyXiang/TRELLIS-image-large")
         self.pipeline.cuda()
         self.MAX_SEED = np.iinfo(np.int32).max
         self.TMP_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'tmp')
